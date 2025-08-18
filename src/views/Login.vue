@@ -13,7 +13,7 @@
         <el-form-item prop="role">
           <el-select v-model='form.role'>
             <el-option value="ADMIN" label="管理员"></el-option>
-            <el-option value="STAFF" label="员工"></el-option>
+<!--            <el-option value="STAFF" label="员工"></el-option>-->
           </el-select>
         </el-form-item>
         <el-form-item>
@@ -28,12 +28,12 @@
         <el-form-item>
           <el-button size="medium" style="width: 100%; background-color: #313131; border-color: #313131; color: white" @click="login">登 录</el-button>
         </el-form-item>
-        <div style="display: flex; align-items: center">
-          <div style="flex: 1"></div>
-          <div style="flex: 1; text-align: right">
-            还没有账号？请 <a href="/register">注册</a>
-          </div>
-        </div>
+<!--        <div style="display: flex; align-items: center">-->
+<!--          <div style="flex: 1"></div>-->
+<!--          <div style="flex: 1; text-align: right">-->
+<!--            还没有账号？请 <a href="/register">注册</a>-->
+<!--          </div>-->
+<!--        </div>-->
       </el-form>
     </div>
   </div>

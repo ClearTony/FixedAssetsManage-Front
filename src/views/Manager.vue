@@ -47,20 +47,20 @@
             <el-menu-item index="/category" v-if="user.role=='ADMIN'" >资产分类</el-menu-item>
             <el-menu-item index="/assets" >固定资产</el-menu-item>
             <el-menu-item index="/staffAssets" v-if="user.role=='STAFF'">个人资产</el-menu-item>
-            <el-menu-item index="/assetsReceive">资产领用</el-menu-item>
-            <el-menu-item index="/assetsIn">资产入库</el-menu-item>
-            <el-menu-item index="/assetsRepair">资产维修</el-menu-item>
+<!--            <el-menu-item index="/assetsReceive">资产领用</el-menu-item>-->
+<!--            <el-menu-item index="/assetsIn">资产入库</el-menu-item>-->
+<!--            <el-menu-item index="/assetsRepair">资产维修</el-menu-item>-->
 
 
           </el-submenu>
 
-          <el-submenu index="user" v-if="user.role=='ADMIN'">
-            <template slot="title">
-              <i class="el-icon-menu"></i><span>用户管理</span>
-            </template>
-            <el-menu-item index="/admin">管理员信息</el-menu-item>
-            <el-menu-item index="/staff">员工信息</el-menu-item>
-          </el-submenu>
+<!--          <el-submenu index="user" v-if="user.role=='ADMIN'">-->
+<!--            <template slot="title">-->
+<!--              <i class="el-icon-menu"></i><span>用户管理</span>-->
+<!--            </template>-->
+<!--            <el-menu-item index="/admin">管理员信息</el-menu-item>-->
+<!--            <el-menu-item index="/staff">员工信息</el-menu-item>-->
+<!--          </el-submenu>-->
         </el-menu>
       </div>
 

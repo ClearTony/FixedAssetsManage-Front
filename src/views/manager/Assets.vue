@@ -14,6 +14,7 @@
       <el-button type="primary" plain @click="handleAdd">新增</el-button>
       <el-button type="danger" plain @click="delBatch">批量删除</el-button>
       <el-button type="info" plain @click="exportData">批量导出</el-button>
+      <el-button type="success" plain @click="handleImport">批量导入</el-button>
     </div>
 
     <div class="table">
@@ -164,6 +165,36 @@
         <el-button type="primary" @click="save">确 定</el-button>
       </div>
     </el-dialog>
+    
+    <el-dialog title="批量导入" :visible.sync="importVisible" width="40%" :close-on-click-modal="false" destroy-on-close>
+      <el-form label-width="100px" style="padding-right: 50px">
+        <el-form-item label="选择文件">
+          <el-upload
+              :action="$baseUrl + '/assets/import'"
+              :headers="{ token: user.token }"
+              :on-success="handleImportSuccess"
+              :on-error="handleImportError"
+              :before-upload="beforeImportUpload"
+              accept=".xlsx,.xls"
+              :show-file-list="true"
+              :auto-upload="false"
+              :limit="1"
+              ref="importUpload"
+          >
+            <el-button slot="trigger" type="primary">选择Excel文件</el-button>
+            <div slot="tip" class="el-upload__tip">只能上传xlsx/xls文件，且不超过10MB</div>
+          </el-upload>
+        </el-form-item>
+        <el-form-item label="模板下载">
+          <el-button type="info" plain @click="downloadTemplate">下载导入模板</el-button>
+        </el-form-item>
+
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="importVisible = false">取 消</el-button>
+        <el-button type="primary" @click="submitImport">开始导入</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -200,7 +231,8 @@ export default {
         returnDate: [
           { required: true, message: '请选择归还日期', trigger: 'blur' }
         ],
-      }
+      },
+      importVisible: false
     }
   },
   created() {
@@ -348,6 +380,71 @@ export default {
     handleCurrentChange(pageNum) {
       this.load(pageNum)
     },
+    handleImport() {
+      this.importVisible = true
+      this.$nextTick(() => {
+        this.$refs.importUpload.clearFiles()
+      })
+    },
+    beforeImportUpload(file) {
+      // 检查文件类型
+      const isExcel = file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' || 
+                      file.type === 'application/vnd.ms-excel' ||
+                      file.name.endsWith('.xlsx') || 
+                      file.name.endsWith('.xls')
+      
+      if (!isExcel) {
+        this.$message.error('只能上传Excel文件!')
+        return false
+      }
+      
+      // 检查文件大小 (10MB)
+      const isLt10M = file.size / 1024 / 1024 < 10
+      if (!isLt10M) {
+        this.$message.error('文件大小不能超过10MB!')
+        return false
+      }
+      
+      this.$message.success('文件选择成功，请点击"开始导入"按钮')
+      return false // 阻止自动上传
+    },
+    handleImportSuccess(response, file, fileList) {
+      // 这个方法现在不会被调用，因为我们使用手动上传
+    },
+    handleImportError(err, file, fileList) {
+      // 这个方法现在不会被调用，因为我们使用手动上传
+    },
+    downloadTemplate() {
+      window.open(this.$baseUrl + '/assets/import/template')
+    },
+    submitImport() {
+      const fileList = this.$refs.importUpload.uploadFiles
+      if (!fileList || fileList.length === 0) {
+        this.$message.warning('请选择要导入的Excel文件')
+        return
+      }
+      
+      // 手动创建FormData并发送请求
+      const formData = new FormData()
+      formData.append('file', fileList[0].raw)
+      
+      this.$request.post('/assets/import', formData, {
+        headers: {
+          'token': this.user.token
+        }
+      }).then(res => {
+        if (res.code === '200') {
+          this.$message.success(res.msg || '导入成功')
+          this.load(1)
+          this.importVisible = false
+          this.$refs.importUpload.clearFiles()
+        } else {
+          this.$message.error(res.msg || '导入失败')
+        }
+      }).catch(err => {
+        this.$message.error('导入失败，请检查文件格式或联系管理员')
+      })
+    }
   }
 }
 </script>
