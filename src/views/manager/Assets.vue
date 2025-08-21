@@ -300,13 +300,6 @@ export default {
       this.$set(this.form, 'departmentId', node.id)
       this.$refs.selectTree.blur()
     },
-    handleDepartmentChange(val) {
-      // 当下拉框选择变化时，同步到树形组件
-      const tree = this.$refs.selectTree;
-      if (tree) {
-        tree.setCheckedKeys(val);
-      }
-    },
     handleAdd() {   // 新增数据
       this.form = {}  // 新增数据的时候清空数据
       this.fromVisible = true   // 打开弹窗
