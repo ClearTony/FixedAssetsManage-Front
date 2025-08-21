@@ -14,9 +14,12 @@
     <div class="table">
       <el-table :data="tableData" strip @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" align="center"></el-table-column>
-        <el-table-column prop="id" label="序号" width="70" align="center" sortable></el-table-column>
+<!--        <el-table-column prop="id" label="序号" width="70" align="center" sortable></el-table-column>-->
 
         <el-table-column prop="name" label="分类名称"></el-table-column>
+        <el-table-column prop="durableYears" label="使用年限（月）"></el-table-column>
+        <el-table-column prop="residualRate" label="净残值率（%）"></el-table-column>
+        <el-table-column prop="depreciationMethod" label="折旧方法"></el-table-column>
         <el-table-column label="操作" align="center" width="180">
           <template v-slot="scope">
             <el-button size="mini" type="primary" plain @click="handleEdit(scope.row)">编辑</el-button>
@@ -43,6 +46,15 @@
       <el-form :model="form" label-width="100px" style="padding-right: 50px" :rules="rules" ref="formRef">
         <el-form-item label="分类名称" prop="name">
           <el-input v-model="form.name" placeholder="分类名称"></el-input>
+        </el-form-item>
+        <el-form-item label="使用年限（月）" prop="durableYears">
+          <el-input v-model="form.durableYears" placeholder="使用年限（月）"></el-input>
+        </el-form-item>
+        <el-form-item label="净残值率（%）" prop="residualRate">
+          <el-input v-model="form.residualRate" placeholder="净残值率（%）"></el-input>
+        </el-form-item>
+        <el-form-item label="折旧方法" prop="depreciationMethod">
+          <el-input v-model="form.depreciationMethod" placeholder="折旧方法"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">

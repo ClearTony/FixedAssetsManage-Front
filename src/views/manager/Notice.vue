@@ -14,7 +14,7 @@
     <div class="table">
       <el-table :data="tableData" stripe  @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" align="center"></el-table-column>
-        <el-table-column prop="id" label="序号" width="80" align="center" sortable></el-table-column>
+<!--        <el-table-column prop="id" label="序号" width="80" align="center" sortable></el-table-column>-->
         <el-table-column prop="title" label="标题" show-overflow-tooltip></el-table-column>
         <el-table-column prop="content" label="内容" show-overflow-tooltip></el-table-column>
         <el-table-column prop="time" label="创建时间"></el-table-column>

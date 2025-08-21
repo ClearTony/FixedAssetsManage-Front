@@ -20,13 +20,15 @@
     <div class="table">
       <el-table :data="tableData" strip @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" align="center" v-if="user.role=='ADMIN'"></el-table-column>
-        <el-table-column prop="id" label="序号" width="70" align="center" sortable></el-table-column>
+        <!--        <el-table-column prop="id" label="序号" width="70" align="center" sortable></el-table-column>-->
+        <el-table-column prop="no" label="资产编号"></el-table-column>
         <el-table-column prop="name" label="资产名称"></el-table-column>
         <el-table-column prop="category" label="资产分类"></el-table-column>
-        <el-table-column prop="no" label="资产编号"></el-table-column>
+        <el-table-column prop="secondCategory" label="资产二级分类"></el-table-column>
         <el-table-column prop="img" label="资产图片">
           <template v-slot="scope">
-            <el-image v-if="scope.row.img" style="width: 50px" :src="scope.row.img" :preview-src-list="[scope.row.img]"></el-image>
+            <el-image v-if="scope.row.img" style="width: 50px" :src="scope.row.img"
+                      :preview-src-list="[scope.row.img]"></el-image>
           </template>
         </el-table-column>
         <el-table-column prop="model" label="资产型号"></el-table-column>
@@ -65,7 +67,8 @@
       </div>
     </div>
     <el-dialog title="申请资产" :visible.sync="fromVisible1" width="40%" :close-on-click-modal="false" destroy-on-close>
-      <el-form :model="assetsReceive" label-width="100px" style="padding-right: 50px" :rules="assetsReceiveRules" ref="assetsReceiveFormRef">
+      <el-form :model="assetsReceive" label-width="100px" style="padding-right: 50px" :rules="assetsReceiveRules"
+               ref="assetsReceiveFormRef">
         <el-form-item label="归还日期" prop="returnDate">
           <el-date-picker format="yyyy-MM-dd" value-format="yyyy-MM-dd" placeholder="请选择归还日期"
                           v-model="assetsReceive.returnDate" style="width: 100%"></el-date-picker>
@@ -82,6 +85,9 @@
 
     <el-dialog title="资产信息" :visible.sync="fromVisible" width="40%" :close-on-click-modal="false" destroy-on-close>
       <el-form :model="form" label-width="100px" style="padding-right: 50px" :rules="rules" ref="formRef">
+        <el-form-item label="资产编号" prop="no">
+          <el-input v-model="form.no" placeholder="资产编号"></el-input>
+        </el-form-item>
         <el-form-item label="资产名称" prop="name">
           <el-input v-model="form.name" placeholder="资产名称"></el-input>
         </el-form-item>
@@ -90,8 +96,8 @@
             <el-option v-for="item in categoryList" :key="item.id" :value="item.name" :label="item.name"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="资产编号" prop="no">
-          <el-input v-model="form.no" placeholder="资产编号"></el-input>
+        <el-form-item label="资产二级分类" prop="secondCategory">
+          <el-input v-model="form.secondCategory" placeholder="资产二级分类"></el-input>
         </el-form-item>
         <el-form-item label="资产图片" prop="img">
           <el-upload
@@ -119,7 +125,7 @@
         </el-form-item>
         <el-form-item label="折旧方法" prop="depreciate">
           <el-select style="width: 100%" v-model="form.depreciate">
-            <el-option value="直线法"></el-option>
+            <el-option value="平均年限法"></el-option>
             <el-option value="工作量法"></el-option>
             <el-option value="双倍余额递减法"></el-option>
             <el-option value="年度总和法"></el-option>
@@ -142,10 +148,8 @@
                 default-expand-all />
           </el-select>
         </el-form-item>
-        <el-form-item label="责任人" prop="staffId">
-            <el-select style="width: 100%" v-model="form.staffId">
-              <el-option v-for="item in staffList" :key="item.id" :value="item.id" :label="item.name"></el-option>
-            </el-select>
+        <el-form-item label="责任人" prop="staffName">
+          <el-input v-model="form.staffName" placeholder="责任人"></el-input>
         </el-form-item>
         <el-form-item label="存放地点" prop="location">
           <el-input v-model="form.location" placeholder="存放地点"></el-input>
@@ -165,8 +169,9 @@
         <el-button type="primary" @click="save">确 定</el-button>
       </div>
     </el-dialog>
-    
-    <el-dialog title="批量导入" :visible.sync="importVisible" width="40%" :close-on-click-modal="false" destroy-on-close>
+
+    <el-dialog title="批量导入" :visible.sync="importVisible" width="40%" :close-on-click-modal="false"
+               destroy-on-close>
       <el-form label-width="100px" style="padding-right: 50px">
         <el-form-item label="选择文件">
           <el-upload
@@ -207,12 +212,15 @@ export default {
       pageSize: 10,  // 每页显示的个数
       total: 0,
       name: null,
-      category:null,
-      no:null,
+      category: null,
+      no: null,
       fromVisible: false,
       form: {},
       user: JSON.parse(localStorage.getItem('xm-user') || '{}'),
       rules: {
+        no: [
+          {required: true, message: '请输入编号', trigger: 'blur'}
+        ],
         name: [
           {required: true, message: '请输入名称', trigger: 'blur'}
         ],
@@ -229,7 +237,7 @@ export default {
       fromVisible1: false,
       assetsReceiveRules: {
         returnDate: [
-          { required: true, message: '请选择归还日期', trigger: 'blur' }
+          {required: true, message: '请选择归还日期', trigger: 'blur'}
         ],
       },
       importVisible: false
@@ -257,14 +265,14 @@ export default {
         }
       })
     },
-    handleReceive(assetsId){
+    handleReceive(assetsId) {
       this.fromVisible1 = true
-      this.assetsReceive = { assetsId: assetsId }
+      this.assetsReceive = {assetsId: assetsId}
     },
-    exportData(){
-      window.open(this.$baseUrl+'/assets/export')
+    exportData() {
+      window.open(this.$baseUrl + '/assets/export')
     },
-    loadDepartment(){
+    loadDepartment() {
       // 先查出扁平的部门数组
       this.$request.get('/department/selectAll').then(res => {
         this.departmentList = res.data
@@ -274,14 +282,14 @@ export default {
         this.departmentTree = res.data
       })
     },
-    loadCategory(){
-      this.$request.get('/category/selectAll').then(res=>{
-        this.categoryList=res.data||[]
+    loadCategory() {
+      this.$request.get('/category/selectAll').then(res => {
+        this.categoryList = res.data || []
       })
     },
-    loadStaff(){
-      this.$request.get('/staff/selectAll').then(res=>{
-        this.staffList=res.data||[]
+    loadStaff() {
+      this.$request.get('/staff/selectAll').then(res => {
+        this.staffList = res.data || []
       })
     },
     handleImgSuccess(response, file, fileList) {
@@ -291,6 +299,13 @@ export default {
     handleNodeClick(node) {
       this.$set(this.form, 'departmentId', node.id)
       this.$refs.selectTree.blur()
+    },
+    handleDepartmentChange(val) {
+      // 当下拉框选择变化时，同步到树形组件
+      const tree = this.$refs.selectTree;
+      if (tree) {
+        tree.setCheckedKeys(val);
+      }
     },
     handleAdd() {   // 新增数据
       this.form = {}  // 新增数据的时候清空数据
@@ -359,8 +374,8 @@ export default {
           pageNum: this.pageNum,
           pageSize: this.pageSize,
           name: this.name,
-          category:this.category,
-          no:this.no,
+          category: this.category,
+          no: this.no,
         }
       }).then(res => {
         if (res.code === '200') {
@@ -388,23 +403,23 @@ export default {
     },
     beforeImportUpload(file) {
       // 检查文件类型
-      const isExcel = file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' || 
-                      file.type === 'application/vnd.ms-excel' ||
-                      file.name.endsWith('.xlsx') || 
-                      file.name.endsWith('.xls')
-      
+      const isExcel = file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
+          file.type === 'application/vnd.ms-excel' ||
+          file.name.endsWith('.xlsx') ||
+          file.name.endsWith('.xls')
+
       if (!isExcel) {
         this.$message.error('只能上传Excel文件!')
         return false
       }
-      
+
       // 检查文件大小 (10MB)
       const isLt10M = file.size / 1024 / 1024 < 10
       if (!isLt10M) {
         this.$message.error('文件大小不能超过10MB!')
         return false
       }
-      
+
       this.$message.success('文件选择成功，请点击"开始导入"按钮')
       return false // 阻止自动上传
     },
@@ -423,11 +438,11 @@ export default {
         this.$message.warning('请选择要导入的Excel文件')
         return
       }
-      
+
       // 手动创建FormData并发送请求
       const formData = new FormData()
       formData.append('file', fileList[0].raw)
-      
+
       this.$request.post('/assets/import', formData, {
         headers: {
           'token': this.user.token
