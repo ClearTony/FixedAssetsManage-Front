@@ -131,20 +131,23 @@
             <el-option value="年度总和法"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="使用部门" prop="departmentId">
+        <el-form-item label="使用部门" prop="departmentIds">
 
-          <el-select ref="selectTree" v-model="form.departmentId" clearable style="width: 100%;">
+          <el-select ref="selectTree" v-model="form.departmentIds" multiple clearable style="width: 100%;" @clear="handleDeptClear">
             <el-option
                 v-for="item in departmentList"
                 :key="item.id"
-                :value="item.id"
+                :value="Number(item.id)"
                 :label="item.name"
                 style="display: none;"/>
             <el-tree
+                ref="deptTree"
                 :data="departmentTree"
                 :props="{children: 'children', label: 'name'}"
-                highlight-current
-                @node-click="handleNodeClick"
+                node-key="id"
+                show-checkbox
+                :default-checked-keys="form.departmentIds || []"
+                @check="handleDeptCheck"
                 default-expand-all />
           </el-select>
         </el-form-item>
@@ -295,22 +298,66 @@ export default {
     handleImgSuccess(response, file, fileList) {
       this.form.img = response.data
     },
-    // node 就是department对象
-    handleNodeClick(node) {
-      this.$set(this.form, 'departmentId', node.id)
-      this.$refs.selectTree.blur()
+    handleDeptCheck(data, checked, indeterminate) {
+      const rawIds = this.$refs.deptTree ? this.$refs.deptTree.getCheckedKeys() : []
+      const ids = rawIds.map(id => Number(id))
+      const nodes = this.$refs.deptTree ? this.$refs.deptTree.getCheckedNodes() : []
+      const names = nodes.map(n => n.name)
+      this.$set(this.form, 'departmentIds', ids)
+      this.$set(this.form, 'departmentNames', names)
+    },
+    handleDeptClear() {
+      this.$set(this.form, 'departmentIds', [])
+      this.$set(this.form, 'departmentNames', [])
+      this.$nextTick(() => {
+        this.$refs.deptTree && this.$refs.deptTree.setCheckedKeys(this.form.departmentIds)
+      })
     },
     handleAdd() {   // 新增数据
       this.form = {}  // 新增数据的时候清空数据
+      this.form.departmentIds = []
+      this.form.departmentNames = []
       this.fromVisible = true   // 打开弹窗
+      this.$nextTick(() => {
+        this.$refs.deptTree && this.$refs.deptTree.setCheckedKeys(this.form.departmentIds)
+      })
     },
     handleEdit(row) {   // 编辑数据
       this.form = JSON.parse(JSON.stringify(row))  // 给form对象赋值  注意要深拷贝数据
+      const hasIds = Array.isArray(this.form.departmentIds) && this.form.departmentIds.length
+      if (!hasIds) {
+        const names = Array.isArray(this.form.departmentNames)
+          ? this.form.departmentNames
+          : (typeof this.form.departmentNames === 'string' && this.form.departmentNames
+            ? this.form.departmentNames.split(',').filter(Boolean)
+            : (typeof this.form.departmentName === 'string' && this.form.departmentName
+              ? this.form.departmentName.split(',').filter(Boolean)
+              : []))
+        const nameSet = new Set(names)
+        const mappedIds = (this.departmentList || []).filter(d => nameSet.has(d.name)).map(d => Number(d.id))
+        this.form.departmentIds = mappedIds
+      } else {
+        this.form.departmentIds = this.form.departmentIds.map(id => Number(id))
+      }
       this.fromVisible = true   // 打开弹窗
+      this.$nextTick(() => {
+        this.$refs.deptTree && this.$refs.deptTree.setCheckedKeys(this.form.departmentIds)
+      })
     },
     save() {   // 保存按钮触发的逻辑  它会触发新增或者更新
       this.$refs.formRef.validate((valid) => {
         if (valid) {
+          const ids = Array.isArray(this.form.departmentIds) ? this.form.departmentIds : []
+          let names = []
+          if (this.$refs.deptTree) {
+            const nodes = this.$refs.deptTree.getCheckedNodes()
+            names = nodes.map(n => n.name)
+          } else if (Array.isArray(this.form.departmentNames)) {
+            names = this.form.departmentNames
+          }
+          this.form.departmentIds = ids
+          this.form.departmentNames = names
+          this.form.departmentName = names.join(',')
           this.$request({
             url: this.form.id ? '/assets/update' : '/assets/add',
             method: this.form.id ? 'PUT' : 'POST',
