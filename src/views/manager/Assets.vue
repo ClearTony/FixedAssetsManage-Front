@@ -314,9 +314,10 @@ export default {
       })
     },
     handleAdd() {   // 新增数据
-      this.form = {}  // 新增数据的时候清空数据
-      this.form.departmentIds = []
-      this.form.departmentNames = []
+      this.form = {
+        departmentIds: [],
+        departmentNames: []
+      }
       this.fromVisible = true   // 打开弹窗
       this.$nextTick(() => {
         this.$refs.deptTree && this.$refs.deptTree.setCheckedKeys(this.form.departmentIds)
