@@ -131,7 +131,7 @@
             <el-option value="年度总和法"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="使用部门ID" prop="departmentId">
+        <el-form-item label="使用部门" prop="departmentId">
 
           <el-select ref="selectTree" v-model="form.departmentId" clearable style="width: 100%;">
             <el-option
