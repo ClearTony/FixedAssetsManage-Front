@@ -173,6 +173,17 @@
       </div>
     </el-dialog>
 
+    <el-dialog title="批量导入统计" :visible.sync="importStatsVisible" width="30%">
+      <div class="import-stats-container">
+        <p class="stats-item">总条数: <span class="stats-value">{{ importStats.totalCount }}</span></p>
+        <p class="stats-item">成功条数: <span class="stats-value success">{{ importStats.successCount }}</span></p>
+        <p class="stats-item">失败条数: <span class="stats-value fail">{{ importStats.failCount }}</span></p>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="importStatsVisible = false">确 定</el-button>
+      </span>
+    </el-dialog>
+    <!-- 原有批量导入对话框 -->
     <el-dialog title="批量导入" :visible.sync="importVisible" width="40%" :close-on-click-modal="false"
                destroy-on-close>
       <el-form label-width="100px" style="padding-right: 50px">
@@ -243,7 +254,15 @@ export default {
           {required: true, message: '请选择归还日期', trigger: 'blur'}
         ],
       },
-      importVisible: false
+      importVisible: false,
+      // 新增统计对话框显示状态
+      importStatsVisible: false,
+      // 新增 importStats 对象，用于存储统计信息
+      importStats: {
+        totalCount: 0,
+        successCount: 0,
+        failCount: 0
+      }
     }
   },
   created() {
@@ -490,6 +509,16 @@ export default {
         }
       }).then(res => {
         if (res.code === '200') {
+          // 假设接口返回的数据结构包含 totalCount、successCount 和 failCount
+          if (res.data && res.data.totalCount !== undefined && res.data.successCount !== undefined && res.data.failCount !== undefined) {
+            this.importStats = {
+              totalCount: res.data.totalCount,
+              successCount: res.data.successCount,
+              failCount: res.data.failCount
+            }
+            // 显示统计对话框
+            this.importStatsVisible = true
+          }
           this.$message.success(res.msg || '导入成功')
           this.load(1)
           this.importVisible = false
@@ -506,5 +535,33 @@ export default {
 </script>
 
 <style scoped>
+/* 统计信息容器样式 */
+.import-stats-container {
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+}
 
+/* 每条统计信息的样式 */
+.stats-item {
+  font-size: 16px;
+  margin: 10px 0;
+  color: #333;
+}
+
+/* 统计数值的通用样式 */
+.stats-value {
+  font-weight: bold;
+  margin-left: 8px;
+}
+
+/* 成功条数数值的样式 */
+.stats-value.success {
+  color: #67c23a;
+}
+
+/* 失败条数数值的样式 */
+.stats-value.fail {
+  color: #f56c6c;
+}
 </style>
